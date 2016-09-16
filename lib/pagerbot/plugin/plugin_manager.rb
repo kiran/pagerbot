@@ -62,17 +62,17 @@ module PagerBot
       end
       class_name = plugin_class plugin_name
       require File.join(File.dirname(__FILE__), plugin_name)
-      clazz = class_from_string(class_name)
+      klass = class_from_string(class_name)
 
       ret = {}
-      if clazz.responds_to? :manual
-        ret = clazz.manual
+      if klass.responds_to? :manual
+        ret = klass.manual
       end
       ret.merge({
         name: plugin_name,
-        description: clazz.description,
-        required_fields: clazz.required_fields,
-        required_plugins: clazz.required_plugins || []
+        description: klass.description,
+        required_fields: klass.required_fields,
+        required_plugins: klass.required_plugins || []
       })
     end
 

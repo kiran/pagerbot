@@ -49,22 +49,6 @@ module PagerBot::Plugins
       }
     end
 
-    # might be moves to pagerduty class later
-    def post_incident(payload)
-      begin
-        payload_json = JSON.dump(payload)
-        resp = pagerduty.incidents_api.post(payload_json, :content_type => :json)
-        answer = JSON.parse(resp, :symbolize_names => true)
-        log.debug("POST to incidents, payload=#{payload.inspect}, response=#{answer}")
-        answer
-      rescue Exception => e
-        log.error("Failed to post to incident API: #{payload.inspect}."+
-          "\nError: #{e.message}")
-        raise RuntimeError.new("Problem talking to PagerDuty incidents:"+
-          " #{e.message}\nRequest was #{payload.inspect}")
-      end
-    end
-
     +PagerBot::Utilities::DispatchMethod
     def dispatch(query, event_data)
       # hacky flow since API doesn't support creating an incident directly against a user
@@ -90,7 +74,7 @@ module PagerBot::Plugins
 
       log.info "Put #{person.name} on temporary schedule for 5 minutes. #{override}"
 
-      incident = post_incident(
+      incident = pagerduty.post_incident(
         :service_key => @service[:service_key],
         :event_type => "trigger",
         :description => query[:subject]
