@@ -75,6 +75,22 @@ module PagerBot
       @incidents_resource ||= RestClient::Resource.new(base_url)
     end
 
+    # post an incident to the incidents API
+    def post_incident(payload)
+      begin
+        payload_json = JSON.dump(payload)
+        resp = incidents_api.post(payload_json, :content_type => :json)
+        answer = JSON.parse(resp, :symbolize_names => true)
+        log.debug("POST to incidents, payload=#{payload.inspect}, response=#{answer}")
+        answer
+      rescue Exception => e
+        log.error("Failed to post to incident API: #{payload.inspect}."+
+          "\nError: #{e.message}")
+        raise RuntimeError.new("Problem talking to PagerDuty incidents:"+
+          " #{e.message}\nRequest was #{payload.inspect}")
+      end
+    end
+
     # return User object for aliases like "i", "johnsmith"
     def find_user(alias_, nickname=nil)
       if nickname && ['me', 'i', 'my'].include?(alias_)

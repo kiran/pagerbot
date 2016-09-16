@@ -68,8 +68,7 @@ class CallPerson < Critic::MockedPagerDutyTest
           }
           .returns({})
 
-        @plugin = plugin
-        @plugin
+        PagerBot::PagerDuty.any_instance
           .expects(:post_incident)
           .with({
             :event_type => "trigger",
@@ -79,7 +78,7 @@ class CallPerson < Critic::MockedPagerDutyTest
       end
 
       it 'should not error with standard responses' do
-        answer = @plugin.dispatch({
+        answer = plugin.dispatch({
           person: "me", subject: "description description"
         }, {nick: "karl"}).fetch(:message)
         assert_includes(answer, "Contacted Karl-Aksel Puulmann, see ")
